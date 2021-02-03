@@ -13,7 +13,7 @@ Script must be run with python 3 because of the `input()` function usage.
 
 ## Usage
 You must specify which folders/disks to backup. This can be done in two ways:
-- create `backupConfig.py` file in the same directory as [backup.py](.backup.py) script
+- create `backupConfig.py` file in the same directory as [backup.py](./backup.py) script
   this way you don't need to specify configuration file when you launch the script,
   so script can be launched like this: `python backup.py`
 - pass configuration file as an argument when you launch the script:
