@@ -1,23 +1,39 @@
-
-destinationPath = "/media/USER/Elements/"  # External disk path - this is where to backup
-
-disksToBackup = [
+backupConfig = [
     {
-        "diskPath": "/home/USER/",  # Do not start active user directory with '~/' because it is going to fail
-        "folders":
+        "destinationPath":  "/media/USER/Elements/",  # External disk path - this is where to backup
+        "mainPath": "/home/USER/",  # Do not start active user directory with '~/' because it is going to fail
+        "toBackup":
             [
-                {"path": "Documents", "exclude": []},
-                {"path": "Pictures", "exclude": []},
-                {"path": "Projects", "exclude": ["__pycache__"]},
+                {
+                    "commonPath": "Documents/",
+                    "folders":
+                        [
+                            {"path": "Notion", "exclude": []},
+                            {"path": "storage", "exclude": []},
+                            {"path": "apps", "exclude": ['squashfs-root']},
+                        ]
+                },
+                {
+                    "folders": [
+                        {"path": "Pictures", "exclude": []},
+                        {"path": "Projects", "exclude": ["__pycache__"]},
+                    ]
+                }
             ]
     },
     {
-        "diskPath": "/media/USER/DISK/",
-        "folders":
+        "destinationPath": "/media/USER/Elements/",  # External disk path - this is where to backup
+        "mainPath": "/media/USER/SlimBoi/",
+        "toBackup":
             [
-                {"path": "Books", "exclude": []},
-                {"path": "Music", "exclude": []},
-                {"path": "Random", "exclude": []},
+                {
+                    "folders":
+                    [
+                        {"path": "Books", "exclude": []},
+                        {"path": "Music", "exclude": []},
+                        {"path": "Random", "exclude": []},
+                    ]
+                }
             ]
     },
 ]

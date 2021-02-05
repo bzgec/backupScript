@@ -21,40 +21,41 @@ class BackupClass:
     RSYNC_CMD_DRY_RUN="rsync -rltgoDvn --modify-window=1 --delete"
     RSYNC_CMD="rsync -rltgoDvP --modify-window=1 --delete"
 
-    def __init__(self, destinationPath=0, disksToBackup=0):
+    def __init__(self, backupConfig=0):
         self.backupAllFolders = False  # backup all folders command line option argument flag (-a, --all)
-        self.destinationPath = destinationPath
-        self.disksToBackup = disksToBackup
+        self.backupConfig = backupConfig
 
-        if disksToBackup != 0:
+        if backupConfig != 0:
             # Set `shouldBackup` flags for each folder, default value is 0 meaning to not backup
-            for diskToBackup in self.disksToBackup:
-                for folder in diskToBackup["folders"]:
-                    folder["shouldBackup"] = 0
+            self.setBackupAllFolders(0)
 
-    def setConfig(self, destinationPath, disksToBackup):
-        self.destinationPath = destinationPath
-        self.disksToBackup = disksToBackup
+    def setConfig(self, backupConfig):
+        self.backupConfig = backupConfig
 
         # Set `shouldBackup` flags for each folder, default value is 0 meaning to not backup
-        for diskToBackup in self.disksToBackup:
-            for folder in diskToBackup["folders"]:
-                folder["shouldBackup"] = 0
+        self.setBackupAllFolders(0)
 
-    def setBackupAllFolders(self):
-        for diskToBackup in self.disksToBackup:
-            for folder in diskToBackup["folders"]:
-                folder["shouldBackup"] = 1
+    def setBackupAllFolders(self, shouldBackupOption):
+        for diskToBackup in self.backupConfig:
+            for element in diskToBackup["toBackup"]:
+                for folder in element["folders"]:
+                    folder["shouldBackup"] = shouldBackupOption
+
     def selectFoldersToBackup(self):
         print("Which folders to backup? (y/n)")
 
-        for diskToBackup in self.disksToBackup:
-            print('"' + diskToBackup["diskPath"] + '"' ' -> ' + '"' + self.destinationPath + '"')
-            for folder in diskToBackup["folders"]:
-                if "y" == input('  "' + folder["path"] + '": ').lower():
-                    folder["shouldBackup"] = 1
-                else:
-                    folder["shouldBackup"] = 0
+        for diskToBackup in self.backupConfig:
+            print('"' + diskToBackup["mainPath"] + '"' ' -> ' + '"' + diskToBackup["destinationPath"] + '"')
+            for element in diskToBackup["toBackup"]:
+                for folder in element["folders"]:
+                    try:
+                        srcFolder = element["commonPath"] + folder["path"]
+                    except KeyError:
+                        srcFolder = folder["path"]
+                    if "y" == input('  "' + srcFolder + '": ').lower():
+                        folder["shouldBackup"] = 1
+                    else:
+                        folder["shouldBackup"] = 0
 
 
     # Check if rsync command is saying that there are no differences
@@ -69,41 +70,50 @@ class BackupClass:
 
     # Start the backup for all the disks/files
     def startBackup(self):
-        for diskToBackup in self.disksToBackup:
-            self.backup(backup.destinationPath, diskToBackup["diskPath"], diskToBackup["folders"])
+        for diskToBackup in self.backupConfig:
+            self.backup(diskToBackup["destinationPath"], diskToBackup["mainPath"], diskToBackup["toBackup"])
 
     # Backup specified folder
-    def backup(self, destFolder, srcFolder, foldersToBackup):
-        for folder in foldersToBackup:
-            if folder["shouldBackup"] == 1:
-                print(SEPARATOR)
+    def backup(self, destFolder, srcFolder, toBackup):
+        for element in toBackup:
+            # Check if current element has common path specified
+            try:
+                srcPath = srcFolder + element["commonPath"]
+                destPath = destFolder + element["commonPath"]
+            except KeyError:
+                srcPath = srcFolder
+                destPath = destFolder
 
-                excludeStr = ""
-                for excludeFile in folder["exclude"]:
-                    # Note that we are not using --execlude={} because {} is actually
-                    # a Bash Brace expansion - https://wiki.bash-hackers.org/syntax/expansion/brace
-                    # Sooo /bin/sh doesn't support this - https://stackoverflow.com/a/22660171/14246508
-                    excludeStr += "--exclude=" + excludeFile + " "
+            for folder in element["folders"]:
+                if folder["shouldBackup"] == 1:
+                    print(SEPARATOR)
 
-                cmd = self.RSYNC_CMD_DRY_RUN + ' ' + \
-                      excludeStr + \
-                      '"' + srcFolder + folder["path"] + '/" ' + \
-                      '"' + destFolder + folder["path"] + '/"'
-                print('\033[1mDRY run command: ' + cmd + '\033[0m')
-                # returnedStr = os.system(cmd)
-                returnedStr = os.popen(cmd).read()
-                if self.checkDiff(returnedStr) == 1:
-                    print(returnedStr)
+                    excludeStr = ""
+                    for excludeFile in folder["exclude"]:
+                        # Note that we are not using --execlude={} because {} is actually
+                        # a Bash Brace expansion - https://wiki.bash-hackers.org/syntax/expansion/brace
+                        # Sooo /bin/sh doesn't support this - https://stackoverflow.com/a/22660171/14246508
+                        excludeStr += "--exclude=" + excludeFile + " "
 
-                    cmd = self.RSYNC_CMD + ' ' + \
+                    cmd = self.RSYNC_CMD_DRY_RUN + ' ' + \
                           excludeStr + \
-                          '"' + srcFolder + folder["path"] + '/" ' + \
-                          '"' + destFolder + folder["path"] + '/"'
-                    confirm = input('\033[1mRun command: ' + cmd + '? (y/n): \033[0m').lower()
-                    if confirm == "y":
-                        os.system(cmd)
-                else:
-                    print("No difference.")
+                          '"' + srcPath + folder["path"] + '/" ' + \
+                          '"' + destPath + folder["path"] + '/"'
+                    print('\033[1mDRY run command: ' + cmd + '\033[0m')
+                    # returnedStr = os.system(cmd)
+                    returnedStr = os.popen(cmd).read()
+                    if self.checkDiff(returnedStr) == 1:
+                        print(returnedStr)
+
+                        cmd = self.RSYNC_CMD + ' ' + \
+                              excludeStr + \
+                              '"' + srcPath + folder["path"] + '/" ' + \
+                              '"' + destPath + folder["path"] + '/"'
+                        confirm = input('\033[1mRun command: ' + cmd + '? (y/n): \033[0m').lower()
+                        if confirm == "y":
+                            os.system(cmd)
+                    else:
+                        print("No difference.")
 
 
 import os
@@ -131,16 +141,16 @@ def checkArgs(backup, argv):
             arg = arg.replace(".py", "")
             from importlib import import_module
             backupConfig = import_module(arg)
-            backup.setConfig(backupConfig.destinationPath, backupConfig.disksToBackup)
+            backup.setConfig(backupConfig.backupConfig)
         elif opt in ("-a", "--all"):
             backup.backupAllFolders = True
 
 def main(backup):
-    # If destination path and disksToBackup are not yet set they are set now from backupConfig.py
+    # If destination path and backupConfig are not yet set they are set now from backupConfig.py
     # file
-    if backup.destinationPath == 0:
+    if backup.backupConfig == 0:
         import backupConfig
-        backup.setConfig(backupConfig.destinationPath, backupConfig.disksToBackup)
+        backup.setConfig(backupConfig.backupConfig)
 
     # Get which folders should be updated now
     print(SEPARATOR)
@@ -148,7 +158,7 @@ def main(backup):
         backup.selectFoldersToBackup()
     else:
         print("Backing up all specified folders")
-        backup.setBackupAllFolders()
+        backup.setBackupAllFolders(1)
 
     # Start backup, but first perform trial run
     backup.startBackup()
