@@ -4,7 +4,7 @@ def displayHelp():
     print("Script to make backup from Linux to external disk (NTFS).")
     print("Note that we are also deleting files from backup disk!!! This is because we don't want")
     print("to keep every movie on our PC.")
-    print("This program must be run with python 3, tested with python 3.8.5.")
+    print("Tested with python 3.8.5.")
     print("")
     print("python backup.py [OPTION]")
     print("")
@@ -18,8 +18,6 @@ def displayHelp():
 
 class BackupClass:
     # Not using `-a` option because we are backuping to NTFS and we are not using `-p` option
-    RSYNC_CMD_DRY_RUN="rsync -rltgoDvn --modify-window=1 --delete"
-    RSYNC_CMD="rsync -rltgoDvP --modify-window=1 --delete"
 
     def __init__(self, backupConfig=0):
         self.backupAllFolders = False  # backup all folders command line option argument flag (-a, --all)
@@ -87,15 +85,34 @@ class BackupClass:
             for folder in element["folders"]:
                 if folder["shouldBackup"] == 1:
                     print(SEPARATOR)
+                    dryRunParam = "-n"
+                    realRunParam = "-P"
+                    rsyncCmd = "rsync -rltgoDv --modify-window=1 --delete"
+
+                    rsyncAdditionalParam = ""
+                    # Check for additional parameters
+                    try:
+                        for additionalParam in folder["options"]:
+                            if additionalParam == "no-delete":
+                                # Remove "--delete" option
+                                rsyncCmd = rsyncCmd.replace(" --delete", "")
+                    except KeyError:
+                        # No "options" specified
+                        pass
 
                     excludeStr = ""
-                    for excludeFile in folder["exclude"]:
-                        # Note that we are not using --execlude={} because {} is actually
-                        # a Bash Brace expansion - https://wiki.bash-hackers.org/syntax/expansion/brace
-                        # Sooo /bin/sh doesn't support this - https://stackoverflow.com/a/22660171/14246508
-                        excludeStr += "--exclude=" + excludeFile + " "
+                    # Check if exclude options are specified
+                    try:
+                        for excludeOption in folder["exclude"]:
+                            # Note that we are not using --execlude={} because {} is actually
+                            # a Bash Brace expansion - https://wiki.bash-hackers.org/syntax/expansion/brace
+                            # Sooo /bin/sh doesn't support this - https://stackoverflow.com/a/22660171/14246508
+                            excludeStr += "--exclude=" + excludeOption + " "
+                    except KeyError:
+                        # No "exclude" specified
+                        pass
 
-                    cmd = self.RSYNC_CMD_DRY_RUN + ' ' + \
+                    cmd = rsyncCmd + " " + dryRunParam + " " + \
                           excludeStr + \
                           '"' + srcPath + folder["path"] + '/" ' + \
                           '"' + destPath + folder["path"] + '/"'
@@ -105,7 +122,7 @@ class BackupClass:
                     if self.checkDiff(returnedStr) == 1:
                         print(returnedStr)
 
-                        cmd = self.RSYNC_CMD + ' ' + \
+                        cmd = rsyncCmd + " " + realRunParam + " " + \
                               excludeStr + \
                               '"' + srcPath + folder["path"] + '/" ' + \
                               '"' + destPath + folder["path"] + '/"'
@@ -120,6 +137,12 @@ import os
 import sys
 import getopt
 import subprocess
+
+# Bind raw_input() to input() in Python 2
+try:
+    input = raw_input
+except NameError:
+    pass
 
 SEPARATOR="#################################################################################"
 
@@ -137,7 +160,6 @@ def checkArgs(backup, argv):
             sys.exit(0)
         elif opt in ("-c", "--config"):
             # import configuration file
-            print(arg)
             arg = arg.replace(".py", "")
             from importlib import import_module
             backupConfig = import_module(arg)
