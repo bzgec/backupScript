@@ -1,5 +1,6 @@
 .vscode
 backupConfig.py
+demoBackupConfig.py
 
 ####################################################################################################
 # .gitignore for python from GitHub
