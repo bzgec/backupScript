@@ -13,8 +13,8 @@ def displayHelp():
     print(" -a, --all     backup all specified folders (don't ask which folders to backup)")
     print(" -c, --config  specify file which stores information about which folders to backup")
     print("               if this is not specified the script looks for backupConfig.py")
-    print("               example: python -c myBackupConfig.py")
-    print("                        python -c myBackupConfig")
+    print("               example: python backup.py -c myBackupConfig.py")
+    print("                        python backup.py -c myBackupConfig")
 
 class BackupClass:
     # Not using `-a` option because we are backuping to NTFS and we are not using `-p` option
