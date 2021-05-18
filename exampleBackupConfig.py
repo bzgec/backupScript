@@ -8,7 +8,7 @@ Special "folders" options:
 
 backupConfig = [
     {
-        "destinationPath":  "/media/USER/Elements/",  # External disk path - this is where to backup
+        "destinationPath": "/media/USER/Elements/",  # External disk path - this is where to backup
         "mainPath": "/home/USER/",  # Do not start active user directory with '~/' because it is going to fail
         "toBackup": [
             {

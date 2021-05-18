@@ -57,6 +57,16 @@ image:./Res/demo.gif[demo]
 (this is useful for folders like Pictures...)
 
 
+== Development
+Before each commit check source code with `make check` command.
+
+WARNING: If there are some errors fix them before committing!
+
+=== Dependencies
+* https://www.gnu.org/software/make/[GNU - make]
+* `pip` link:requirements.dev.txt[requirements.dev.txt]
+
+
 == Suggestions
 If you have any suggestions please let me know (you can submit pull request, open a discussion or
 open an issue).
@@ -64,3 +74,7 @@ open an issue).
 
 == License
 See the link:./LICENSE.md[LICENSE] file for license rights and limitations (MIT).
+
+
+== TODO
+* [ ] Fix `C901 'BackupClass.backup' is too complex (15)`

@@ -1,5 +1,10 @@
 #!/usr/bin/python
 
+import os
+import sys
+import getopt
+
+
 def displayHelp():
     print("Script to make backup from Linux to external disk (NTFS).")
     print("Note that we are also deleting files from backup disk!!! This is because we don't want")
@@ -15,6 +20,7 @@ def displayHelp():
     print("               if this is not specified the script looks for backupConfig.py")
     print("               example: python backup.py -c myBackupConfig.py")
     print("                        python backup.py -c myBackupConfig")
+
 
 class BackupClass:
     # Not using `-a` option because we are backuping to NTFS and we are not using `-p` option
@@ -55,13 +61,15 @@ class BackupClass:
                     else:
                         folder["shouldBackup"] = 0
 
-
     # Check if rsync command is saying that there are no differences
     def checkDiff(self, rsyncOutStr):
         thereIsDiff = 0
         splittedStr = rsyncOutStr.split('\n')
-        if len(splittedStr) != 5:  # There are exacly 4 '\n' characters in output is there are no changes
-                                   # otherwise there are more '\n'characters
+
+        # There are exactly 4 '\n' characters in output if there are no changes
+        # otherwise there are more '\n' characters
+        if len(splittedStr) != 5:
+
             thereIsDiff = 1
 
         return thereIsDiff
@@ -89,7 +97,6 @@ class BackupClass:
                     realRunParam = "-P"
                     rsyncCmd = "rsync -rltgoDv --modify-window=1 --delete"
 
-                    rsyncAdditionalParam = ""
                     # Check for additional parameters
                     try:
                         for additionalParam in folder["options"]:
@@ -113,9 +120,9 @@ class BackupClass:
                         pass
 
                     cmd = rsyncCmd + " " + dryRunParam + " " + \
-                          excludeStr + \
-                          '"' + srcPath + folder["path"] + '/" ' + \
-                          '"' + destPath + folder["path"] + '/"'
+                        excludeStr + \
+                        '"' + srcPath + folder["path"] + '/" ' + \
+                        '"' + destPath + folder["path"] + '/"'
                     print('\033[1mDRY run command: ' + cmd + '\033[0m')
                     # returnedStr = os.system(cmd)
                     returnedStr = os.popen(cmd).read()
@@ -123,9 +130,9 @@ class BackupClass:
                         print(returnedStr)
 
                         cmd = rsyncCmd + " " + realRunParam + " " + \
-                              excludeStr + \
-                              '"' + srcPath + folder["path"] + '/" ' + \
-                              '"' + destPath + folder["path"] + '/"'
+                            excludeStr + \
+                            '"' + srcPath + folder["path"] + '/" ' + \
+                            '"' + destPath + folder["path"] + '/"'
                         confirm = input('\033[1mRun command: ' + cmd + '? (y/n): \033[0m').lower()
                         if confirm == "y":
                             os.system(cmd)
@@ -133,18 +140,14 @@ class BackupClass:
                         print("No difference.")
 
 
-import os
-import sys
-import getopt
-import subprocess
-
 # Bind raw_input() to input() in Python 2
 try:
     input = raw_input
 except NameError:
     pass
 
-SEPARATOR="#################################################################################"
+SEPARATOR = "#################################################################################"
+
 
 # https://www.tutorialspoint.com/python/python_command_line_arguments.htm
 def checkArgs(backup, argv):
@@ -167,6 +170,7 @@ def checkArgs(backup, argv):
         elif opt in ("-a", "--all"):
             backup.backupAllFolders = True
 
+
 def main(backup):
     # If destination path and backupConfig are not yet set they are set now from backupConfig.py
     # file
@@ -184,6 +188,7 @@ def main(backup):
 
     # Start backup, but first perform trial run
     backup.startBackup()
+
 
 if __name__ == "__main__":
     backup = BackupClass()
