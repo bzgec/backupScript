@@ -1,0 +1,35 @@
+################################################################################
+./test/dest/test
+./test/dest/test/Hello.txt
+./test/dest/test/World_new.txt
+./test/dest/test_commonPath
+./test/dest/test_commonPath/folder1
+./test/dest/test_commonPath/folder1/Hello.txt
+./test/dest/test_commonPath/folder1/World.txt
+./test/dest/test_commonPath/folder2
+./test/dest/test_commonPath/folder2/Hello.txt
+./test/dest/test_commonPath/folder2/World.txt
+./test/dest/test_commonPath/folder3
+./test/dest/test_commonPath/folder3/Hello.txt
+./test/dest/test_commonPath/folder3/World.txt
+./test/dest/test_exclude
+./test/dest/test_exclude/sub_folder
+./test/dest/test_exclude/sub_folder/Hello.txt
+./test/dest/test_exclude/sub_folder/World.txt
+./test/dest/test_exclude/Hello.txt
+./test/dest/test_exclude/World.txt
+./test/dest/test_multiPath
+./test/dest/test_multiPath/test
+./test/dest/test_multiPath/test/Hello.txt
+./test/dest/test_multiPath/test/World_new.txt
+./test/dest/test_no-delete
+./test/dest/test_no-delete/Hello_old.txt
+./test/dest/test_no-delete/World_old.txt
+./test/dest/test_no-delete/Hello_new.txt
+./test/dest/test_no-delete/World_new.txt
+################################################################################
+echo test/Hello.txt
+Updated
+################################################################################
+echo test_multiPath/test/Hello.txt
+Updated

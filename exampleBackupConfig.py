@@ -22,7 +22,7 @@ backupConfig = [
             {
                 "folders": [
                     {"path": "Pictures", "options": ["no-delete"]},
-                    {"path": "Projects", "exclude": ["__pycache__"]},
+                    {"path": "Projects", "exclude": ["__pycache__", "*.pyc"]},
                 ]
             },
         ]

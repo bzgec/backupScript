@@ -9,8 +9,18 @@ This is python script used to backup folders to external hard drive.
 It uses link:./rsync.md[rsync] command to check if files/folders need to be copied before the
 actual copying.
 
+[NOTE]
+====
+`rsync` command can also delete files!!!
+
+You must set "no-delete" option in configuration file if you don't want to
+delete files on backup disk/folder.
+====
+
 For now only Linux systems are supported (don't know how it is on Windows and
 link:./rsync.md[rsync] command).
+
+WARNING: We are not responsible for any data loss.
 
 === Intentions
 * replace manual copying of important/special files
@@ -18,7 +28,7 @@ link:./rsync.md[rsync] command).
 
 link:./rsync.md[Here] you can check from some information about `rsync` command.
 
-Note that before actual copying/backuping a *dry run* command is run which shows what a real command
+Note that before actual copying/backup a *dry run* command is run which shows what a real command
 is going to do.
 The default link:./rsync.md[rsync] command: `rsync -rltgoDvP --modify-window=1 --delete`.
 
@@ -77,4 +87,4 @@ See the link:./LICENSE.md[LICENSE] file for license rights and limitations (MIT)
 
 
 == TODO
-* [ ] Fix `C901 'BackupClass.backup' is too complex (15)`
+* [x] Fix `C901 'BackupClass.backup' is too complex (15)`

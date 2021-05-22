@@ -3,6 +3,10 @@ backupConfig.py
 demoBackupConfig.py
 .venv.dev
 .venv.prod
+test/src/
+test/dest/
+test/output.txt
+test/test.log
 
 ####################################################################################################
 # .gitignore for python from GitHub
