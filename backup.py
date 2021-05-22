@@ -3,6 +3,7 @@
 import os
 import sys
 import getopt
+from helper import bold_str
 
 
 def displayHelp():
@@ -93,6 +94,18 @@ class BackupClass:
         for diskToBackup in self.backupConfig:
             self.backup(diskToBackup["destinationPath"], diskToBackup["mainPath"], diskToBackup["toBackup"])
 
+    # Get main source and destination path
+    def getSrcDestPath(self, srcFolder, destFolder, element):
+        # Check if current element has common path specified
+        try:
+            srcPath = srcFolder + element["commonPath"]
+            destPath = destFolder + element["commonPath"]
+        except KeyError:
+            srcPath = srcFolder
+            destPath = destFolder
+
+        return srcPath, destPath
+
     # Setup additional parameters
     def setupAdditionalParam(self, rsyncCmd, folder):
         try:
@@ -102,7 +115,6 @@ class BackupClass:
                     rsyncCmd = rsyncCmd.replace(" --delete", "")
         except KeyError:
             # No "options" specified
-            print("No options specified")
             pass
 
         return rsyncCmd
@@ -120,31 +132,43 @@ class BackupClass:
                 excludeStr += "--exclude=" + excludeOption + " "
         except KeyError:
             # No "exclude" specified
-            print("No exclude specified")
             pass
 
         return excludeStr
+
+    def prepareCmd_dryRun(self, rsyncCmd, excludeStr, srcPath, destPath, folder):
+        dryRunParam = "-n"
+
+        cmd = rsyncCmd + " " + dryRunParam + " " + \
+            excludeStr + \
+            '"' + srcPath + folder["path"] + '/" ' + \
+            '"' + destPath + folder["path"] + '/"'
+
+        return cmd
+
+    def prepareCmd_realRun(self, rsyncCmd, excludeStr, srcPath, destPath, folder):
+        realRunParam = "-P"
+
+        cmd = rsyncCmd + " " + realRunParam + " " + \
+            excludeStr + \
+            '"' + srcPath + folder["path"] + '/" ' + \
+            '"' + destPath + folder["path"] + '/"'
+
+        return cmd
 
     # Backup specified folder
     def backup(self, destFolder, srcFolder, toBackup):
         for element in toBackup:
 
-            # self.setupSrcDestPath(srcFolder, destFolder, )
-            # Check if current element has common path specified
-            try:
-                srcPath = srcFolder + element["commonPath"]
-                destPath = destFolder + element["commonPath"]
-            except KeyError:
-                srcPath = srcFolder
-                destPath = destFolder
+            # Get main source and destination paths
+            srcPath, destPath = self.getSrcDestPath(srcFolder, destFolder, element)
 
+            # Create all parent folders...
             os.popen("mkdir -p " + destPath)
 
             for folder in element["folders"]:
                 if folder["shouldBackup"] == 1:
                     print(SEPARATOR)
-                    dryRunParam = "-n"
-                    realRunParam = "-P"
                     rsyncCmd = "rsync -rltgoDv --modify-window=1 --delete"
 
                     # Check for additional parameters
@@ -153,29 +177,25 @@ class BackupClass:
                     # Check if exclude options are specified
                     excludeStr = self.setupExcludeOptions(folder)
 
-                    cmd = rsyncCmd + " " + dryRunParam + " " + \
-                        excludeStr + \
-                        '"' + srcPath + folder["path"] + '/" ' + \
-                        '"' + destPath + folder["path"] + '/"'
-                    print('\033[1mDRY run command: ' + cmd + '\033[0m')
-                    # returnedStr = os.system(cmd)
-                    returnedStr = os.popen(cmd).read()
-                    if self.checkDiff(returnedStr) == 1:
-                        print(returnedStr)
+                    # Prepare dry run command
+                    cmd_dryRun = self.prepareCmd_dryRun(rsyncCmd, excludeStr, srcPath, destPath, folder)
 
-                        cmd = rsyncCmd + " " + realRunParam + " " + \
-                            excludeStr + \
-                            '"' + srcPath + folder["path"] + '/" ' + \
-                            '"' + destPath + folder["path"] + '/"'
+                    # Prepare real run command
+                    cmd_realRun = self.prepareCmd_realRun(rsyncCmd, excludeStr, srcPath, destPath, folder)
 
-                        if self.noConfirmRsync is True:
-                            os.system(cmd)
-                        else:
-                            confirm = input('\033[1mRun command: ' + cmd + '? (y/n): \033[0m').lower()
-                            if confirm == "y":
-                                os.system(cmd)
+                    if self.noConfirmRsync is True:
+                        os.system(cmd_realRun)
                     else:
-                        print("No difference.")
+                        print(bold_str("DRY run command: " + cmd_dryRun))
+                        returnedStr = os.popen(cmd_dryRun).read()
+                        if self.checkDiff(returnedStr) == 1:
+                            print(returnedStr)
+
+                            confirm = input(bold_str("Run command: " + cmd_realRun + "? (y/n): ")).lower()
+                            if confirm == "y":
+                                os.system(cmd_realRun)
+                        else:
+                            print("No difference.")
 
 
 # Bind raw_input() to input() in Python 2
