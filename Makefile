@@ -49,3 +49,7 @@ test_zip_src:
 	  cd ./test; \
 	  tar -zcf src.tar.gz src; \
 	)
+
+.PHONY: commit
+commit: check test
+	git commit

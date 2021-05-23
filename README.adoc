@@ -14,8 +14,15 @@ actual copying.
 `rsync` command can also delete files!!!
 
 You must set "no-delete" option in configuration file if you don't want to
-delete files on backup disk/folder.
+delete files on backup disk/folder. See link:./exampleBackupConfig.py[config example].
 ====
+
+Before actual copying/backup a *dry run* command is run which shows what a real command
+is going to do.
+Then you decide if you are going to execute *real run* command which will actually copy/backup
+files.
+
+The default link:./rsync.md[rsync] command used: `rsync -rltgoDvP --modify-window=1 --delete`.
 
 For now only Linux systems are supported (don't know how it is on Windows and
 link:./rsync.md[rsync] command).
@@ -27,10 +34,6 @@ WARNING: We are not responsible for any data loss.
 * make copying more efficient (copy only those files which have changed).
 
 link:./rsync.md[Here] you can check from some information about `rsync` command.
-
-Note that before actual copying/backup a *dry run* command is run which shows what a real command
-is going to do.
-The default link:./rsync.md[rsync] command: `rsync -rltgoDvP --modify-window=1 --delete`.
 
 
 == Usage
@@ -54,7 +57,28 @@ because that way we can cancel if we see that something would go wrong. So first
 command is run and than you get prompted if a real command should be run.
 image:./Res/demo.gif[demo]
 
-* Run `python backup.py -h` to see all the available options for configuration of this script.
+=== Script parameters
+
+[source]
+----
+python backup.py [OPTION]
+
+Options:
+  -h, --help        show this help
+
+  -a, --all         backup all specified folders (don't ask which folders to backup)
+
+  -c, --config      specify file which stores information about which folders to backup
+                    if this is not specified the script looks for backupConfig.py
+                    example: python backup.py -c myBackupConfig.py
+                             python backup.py -c myBackupConfig
+
+  -n, --no-confirm  No need to confirm rsync command execution
+                    CAUTION: This option causes that all rsync commands are executed
+                             without any user interaction. Note that rsync command
+                             can delete files (set "no-delete" option in config file
+                             if you don't want to delete files on backup disk/folder)
+----
 
 
 == Configuration file [[configuration-file,Configuration file]]
@@ -68,7 +92,14 @@ image:./Res/demo.gif[demo]
 
 
 == Development
-Before each commit check source code with `make check` command.
+
+Before each commit:
+
+* check source code for best coding standards: `make check`
+* run simple test: `make test`
+
+Or you can just run `make commit` which will run all the necessary commands before running
+`git commit`. Note that you still need to add files to index (`git add`).
 
 WARNING: If there are some errors fix them before committing!
 
@@ -87,4 +118,6 @@ See the link:./LICENSE.md[LICENSE] file for license rights and limitations (MIT)
 
 
 == TODO
+* [ ] Add support for Windows
+
 * [x] Fix `C901 'BackupClass.backup' is too complex (15)`

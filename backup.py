@@ -5,6 +5,14 @@ import sys
 import getopt
 from helper import bold_str
 
+# Bind raw_input() to input() in Python 2
+try:
+    input = raw_input
+except NameError:
+    pass
+
+SEPARATOR = "#################################################################################"
+
 
 def displayHelp():
     print("""\
@@ -29,7 +37,7 @@ Options:
                              python backup.py -c myBackupConfig
 
   -n, --no-confirm  No need to confirm rsync command execution
-                    CAUTION: This option causes that all rsync command are executed
+                    CAUTION: This option causes that all rsync commands are executed
                              without any user interaction. Note that rsync command
                              can delete files (set "no-delete" option in config file
                              if you don't want to delete files on backup disk/folder)
@@ -54,12 +62,14 @@ class BackupClass:
         # Set `shouldBackup` flags for each folder, default value is 0 meaning to not backup
         self.setBackupAllFolders(0)
 
+    # Set flags so that all folders are backed up
     def setBackupAllFolders(self, shouldBackupOption):
         for diskToBackup in self.backupConfig:
             for element in diskToBackup["toBackup"]:
                 for folder in element["folders"]:
                     folder["shouldBackup"] = shouldBackupOption
 
+    # Select which folder should be backed up
     def selectFoldersToBackup(self):
         print("Which folders to backup? (y/n)")
 
@@ -136,6 +146,7 @@ class BackupClass:
 
         return excludeStr
 
+    # Prepare dry run (backup) command for specific folder
     def prepareCmd_dryRun(self, rsyncCmd, excludeStr, srcPath, destPath, folder):
         dryRunParam = "-n"
 
@@ -146,6 +157,7 @@ class BackupClass:
 
         return cmd
 
+    # Prepare real run (backup) command for specific folder
     def prepareCmd_realRun(self, rsyncCmd, excludeStr, srcPath, destPath, folder):
         realRunParam = "-P"
 
@@ -198,19 +210,20 @@ class BackupClass:
                             print("No difference.")
 
 
-# Bind raw_input() to input() in Python 2
-try:
-    input = raw_input
-except NameError:
-    pass
-
-SEPARATOR = "#################################################################################"
-
-
 # https://www.tutorialspoint.com/python/python_command_line_arguments.htm
-def checkArgs(backup, argv):
+# Ignore "C901 'checkArgs' is too complex" - I don't think that it is too complex, also
+# I don't know how mccabe's complexity could be reduced for this function
+def checkArgs(backup, argv):  # noqa: C901
+    shortopts = "hac:n"
+    longopts = [
+        "help",
+        "all",
+        "config=",
+        "no-confirm"
+    ]
+
     try:
-        opts, args = getopt.getopt(argv, "hac:n", ["help", "all", "config=", "no-confirm"])
+        opts, args = getopt.getopt(argv, shortopts, longopts)
     except getopt.GetoptError:
         displayHelp()
         sys.exit(1)
