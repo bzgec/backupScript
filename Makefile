@@ -22,7 +22,7 @@ check: venv_dev
 	  echo "#################################################"; \
 	  echo "Checking $(file)";  \
 	  echo "#################################################"; \
-	  shellcheck $(file); \
+	  shellcheck $(file) || exit 1; \
 	)
 
 
