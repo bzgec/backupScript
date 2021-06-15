@@ -15,7 +15,7 @@ ALL_FILES_SH := $(shell find -name "*.sh")
 check: venv_dev
 	@echo Checking code standards...
 	@( \
-		source $(VENV_DIR_DEV)/bin/activate; \
+		$(SOURCE) $(VENV_DIR_DEV)/bin/activate; \
 		flake8 --ignore=E501 --max-complexity 10 --exclude $(VENV_DIR_DEV),.git,__pycache__ .; \
 	)
 
