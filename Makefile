@@ -42,7 +42,7 @@ $(VENV_DIR_DEV)/touchfile: $(REQUIREMENTS_DEV)
 
 .PHONY: test
 test:
-	bash test.sh
+	bash test.sh $(PY)
 
 
 # Zip test/src folder

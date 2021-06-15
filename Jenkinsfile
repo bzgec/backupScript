@@ -11,26 +11,11 @@ pipeline {
                 sh 'make PY=python3 check'
             }
         }
-        stage('Test - prepare') {
-            steps {
-                sh 'make PY=python3 venv_prod'
-            }
-        }
-        stage('Test - run') {
+        stage('Test') {
             parallel {
-                stage('Test print to terminal - short') {
+                stage('Simple test') {
                     steps {
-                        sh 'make PY=python3 SCRIPT_PARAM="-f sharesListExample.py -s"'
-                    }
-                }
-                stage('Test print to terminal - detailed') {
-                    steps {
-                        sh 'make PY=python3 SCRIPT_PARAM="-f sharesListExample.py -d"'
-                    }
-                }
-                stage('Test print to terminal - latest prices') {
-                    steps {
-                        sh 'make PY=python3 SCRIPT_PARAM="-f sharesListExample.py --latest-prices"'
+                        sh 'make PY=python3 test'
                     }
                 }
             }

@@ -1,5 +1,7 @@
 #!/bin/sh
 
+PYTHON=${1:-python}
+
 # test:
 # - World_old.txt is deleted
 # - World_new.txt is added
@@ -29,8 +31,8 @@ prepare_test() {
 }
 
 run_test() {
-    # python backup.py -c testConfig.py
-    python backup.py -a -n -c testConfig.py >> ./test/test.log
+    # ${PYTHON} backup.py -c testConfig.py
+    ${PYTHON} backup.py -a -n -c testConfig.py >> ./test/test.log
 
     mv ./test/src/test/World_old.txt ./test/src/test/World_new.txt
     echo Updated > ./test/src/test/Hello.txt
@@ -41,8 +43,8 @@ run_test() {
     mv ./test/src/test_no-delete/Hello_old.txt ./test/src/test_no-delete/Hello_new.txt
     mv ./test/src/test_no-delete/World_old.txt ./test/src/test_no-delete/World_new.txt
 
-    # python backup.py -c testConfig.py
-    python backup.py -a -n -c testConfig.py >> ./test/test.log
+    # ${PYTHON} backup.py -c testConfig.py
+    ${PYTHON} backup.py -a -n -c testConfig.py >> ./test/test.log
 }
 
 gen_output_file() {
