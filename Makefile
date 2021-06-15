@@ -2,8 +2,9 @@
 # https://stackoverflow.com/a/59335943/14246508
 # https://medium.com/stack-me-up/using-makefiles-the-right-way-a82091286950
 
-VENV_DIR_DEV?=.venv.dev
-REQUIREMENTS_DEV:=requirements.dev.txt
+VENV_DIR_DEV ?= .venv.dev
+REQUIREMENTS_DEV = requirements.dev.txt
+PY ?= python
 
 ALL_FILES_SH := $(shell find -name "*.sh")
 
@@ -33,8 +34,8 @@ venv_dev: $(VENV_DIR_DEV)/touchfile
 # Activate venv and install requirements inside - `source .venv/bin/activate && pip install -r requirements.txt
 # Create `.venv/touchfile` so that this is ran only if requirements file changes
 $(VENV_DIR_DEV)/touchfile: $(REQUIREMENTS_DEV)
-	test -d $(VENV_DIR_DEV) || python -m venv $(VENV_DIR_DEV)
-	source $(VENV_DIR_DEV)/bin/activate && pip install -r $(REQUIREMENTS_DEV)
+	test -d $(VENV_DIR_DEV) || $(PY) -m venv $(VENV_DIR_DEV)
+	source $(VENV_DIR_DEV)/bin/activate && $(PY) -m pip install -r $(REQUIREMENTS_DEV)
 	touch $(VENV_DIR_DEV)/touchfile
 
 

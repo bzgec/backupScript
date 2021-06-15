@@ -2,6 +2,11 @@
 :toc:
 :sectnums:
 :sectnumlevels: 4
+:jenkins_url: https://jenkins.askerc.com
+:jenkins_job: backupScript
+:git_branch: feature%252Fjenkins
+
+image::{jenkins_url}/job/{jenkins_job}/job/{git_branch}/lastBuild/badge/icon?subject=Build["Build status", link="{jenkins_url}/job/{jenkins_job}/job/{git_branch}/"]
 
 
 == Info
