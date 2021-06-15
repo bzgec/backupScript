@@ -8,8 +8,8 @@ Special "folders" options:
 
 backupConfig = [
     {
-        "destinationPath": "/home/bzgec/Projects/backupScript/test/dest/",  # External disk path - this is where to backup
-        "mainPath": "/home/bzgec/Projects/backupScript/test/src/",  # Do not start active user directory with '~/' because it is going to fail
+        "destinationPath": "test/dest/",  # External disk path - this is where to backup
+        "mainPath": "test/src/",  # Do not start active user directory with '~/' because it is going to fail
         "toBackup": [
             {
                 "folders": [
@@ -33,8 +33,8 @@ backupConfig = [
 
     # Test multiple path/disk setup
     {
-        "destinationPath": "/home/bzgec/Projects/backupScript/test/dest/",  # External disk path - this is where to backup
-        "mainPath": "/home/bzgec/Projects/backupScript/test/src/",  # Do not start active user directory with '~/' because it is going to fail
+        "destinationPath": "test/dest/",  # External disk path - this is where to backup
+        "mainPath": "test/src/",  # Do not start active user directory with '~/' because it is going to fail
         "toBackup": [
             {
                 "commonPath": "test_multiPath/",
